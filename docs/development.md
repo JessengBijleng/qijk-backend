@@ -5,6 +5,7 @@
 | Concern | Choice |
 | --- | --- |
 | Framework | Laravel 13 on PHP 8.5 |
+| AI providers | Laravel AI SDK (`laravel/ai`), OpenAI by default |
 | Tests | Pest |
 | Formatting | Laravel Pint |
 | AI tooling | Laravel Boost (MCP server, guidelines and skills for coding agents) |
@@ -21,6 +22,7 @@ vendor/bin/pint --dirty --format agent  # format changed PHP files
 ## Structure
 
 ```
+app/Ai/Agents/         Laravel AI SDK agents (prompt and structured output schema)
 app/Actions/           Reusable business logic, one action per class
 app/Http/Controllers/  Single action controllers, one per endpoint
 routes/                One route file per category, required from web.php / api.php
@@ -32,8 +34,9 @@ docs/                  Project docs (this folder)
 ## Conventions
 
 - **Follow the rules in [.ai/rules](../.ai/rules/index.md)** for the paths you change.
-- **Scope everything to a customer.** Every model that holds customer or visitor data belongs to a customer, and every query filters on it.
+- **Scope everything to a customer.** Every model that holds customer or lead data belongs to a customer, and every query filters on it.
 - **Keep AI provider calls behind an Action**, so controllers and jobs don't depend on a specific provider.
+- **Switch AI providers with config.** Set `KITCHEN_ANALYSIS_PROVIDER` (and `KITCHEN_ANALYSIS_MODEL`) plus the provider's API key, such as `GEMINI_API_KEY`; see `config/kitchen_analysis.php` and `config/ai.php`.
 - **Fake external services in tests.** Tests never call the real AI provider.
 
 ## Agent docs
