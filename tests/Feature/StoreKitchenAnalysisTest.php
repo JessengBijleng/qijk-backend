@@ -88,3 +88,34 @@ it('returns a bad gateway and stores nothing when the AI provider fails', functi
     expect(KitchenAnalysis::count())->toBe(0)
         ->and(Storage::disk('local')->allFiles())->toBeEmpty();
 });
+
+it('returns a fake analysis without calling the AI provider or storing anything on a dry run', function () {
+    $this->app->detectEnvironment(fn () => 'local');
+
+    $this->postJson('/api/v1/kitchen-analyses?dry_run=1', [
+        'photo' => UploadedFile::fake()->image('kitchen.jpg'),
+    ])->assertCreated()->assertJsonStructure([
+        'data' => ['id', 'cabinet_count', 'drawer_count', 'estimated_wrappable_surface_m2', 'description'],
+    ]);
+
+    KitchenPhotoAnalyst::assertNeverPrompted();
+    expect(KitchenAnalysis::count())->toBe(0)
+        ->and(Storage::disk('local')->allFiles())->toBeEmpty();
+});
+
+it('still validates the photo on a dry run', function () {
+    $this->app->detectEnvironment(fn () => 'local');
+
+    $this->postJson('/api/v1/kitchen-analyses?dry_run=1')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('photo');
+});
+
+it('ignores the dry run flag outside the local environment', function () {
+    $this->postJson('/api/v1/kitchen-analyses?dry_run=1', [
+        'photo' => UploadedFile::fake()->image('kitchen.jpg'),
+    ])->assertCreated();
+
+    KitchenPhotoAnalyst::assertPromptedTimes(1);
+    expect(KitchenAnalysis::count())->toBe(1);
+});

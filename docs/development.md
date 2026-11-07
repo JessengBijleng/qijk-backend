@@ -38,6 +38,7 @@ docs/                  Project docs (this folder)
 - **Keep AI provider calls behind an Action**, so controllers and jobs don't depend on a specific provider.
 - **Switch AI providers with config.** Set `KITCHEN_ANALYSIS_PROVIDER` (and `KITCHEN_ANALYSIS_MODEL`) plus the provider's API key, such as `GEMINI_API_KEY`; see `config/kitchen_analysis.php` and `config/ai.php`.
 - **Fake external services in tests.** Tests never call the real AI provider.
+- **Dry run the AI calls locally.** Add `?dry_run=1` to `POST /api/v1/kitchen-analyses` to get a fixed fake analysis without calling the AI provider or storing anything. The photo is still validated. It only works when `APP_ENV=local` and is ignored everywhere else.
 
 ## Agent docs
 
